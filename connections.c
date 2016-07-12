@@ -24,6 +24,7 @@ TFT side   -------------------- Teensy
 
 DS3231 side ------------------- Teensy
 
+- Gnd       -->     Gnd
 - Vcc       -->     +3V3V(!!!!)
-- SDA       -->     D10 pin (3v3 level!)
-- SCL       -->     3v3 connect to a MCU pin or tie to +3V3 or 10K to 3V3 (do NOT leave float
+- SDA       -->     D18 pin (3v3 level!)
+- SCL       -->     D19 connect to a MCU pin or tie to +3V3 or 10K to 3V3 (do NOT leave float
