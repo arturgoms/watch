@@ -14,17 +14,43 @@ TFT side   -------------------- Teensy
 - Vcc       -->     +3V3V(!!!!)
 - Gnd       -->     Gnd
 - CS        -->     D10 pin (3v3 level!)
-- RST       -->     3v3 connect to a MCU pin or tie to +3V3 or 10K to 3V3 (do NOT leave float!)
+- RST       -->     3v3 
 - A0        -->     D09 or RS pin (3v3 level!)
 - SDA       -->     D11 MOSI  (3v3 level!)
 - SCK       -->     D13 SCLK (3v3 level!)
-- LED       -->     3v3 Some display need a resistor (see note below)
+- LED       -->     3v3 
 
 # DS3231
 
 DS3231 side ------------------- Teensy
 
 - Gnd       -->     Gnd
-- Vcc       -->     +3V3V(!!!!)
-- SDA       -->     D18 pin (3v3 level!)
-- SCL       -->     D19 connect to a MCU pin or tie to +3V3 or 10K to 3V3 (do NOT leave float
+- Vcc       -->     +3V3V
+- SDA       -->     D18 
+- SCL       -->     D19 
+
+BMP180 side ------------------- Teensy
+
+- Gnd       -->     Gnd
+- Vcc       -->     +3V3V
+- SDA       -->     D18
+- SCL       -->     D19 
+
+MPU6050 side ------------------- Teensy
+
+- Gnd       -->     Gnd
+- Vcc       -->     +3V3V
+- SDA       -->     D18 
+- SCL       -->     D19 
+- AD0       -->     +3V3(To Resolve the I2c comflict 0x68)
+
+HC-05 side ------------------- Teensy
+
+- Gnd       -->     Gnd
+- Vcc       -->     +3V3V
+- RX        -->     D01
+- TX        -->     D00 
+
+
+
+
