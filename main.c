@@ -112,7 +112,6 @@ void setup() {
 void loop(void) {
 
   rtc();
-  
   staterBtn = digitalRead(rBtn);
   stateeBtn = digitalRead(eBtn);
   statelBtn = digitalRead(lBtn);
