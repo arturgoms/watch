@@ -223,9 +223,6 @@ void parse_cmd(char *cmd, int cmdsize)
     char buff[BUFF_MAX];
     struct ts t;
 
-    //snprintf(buff, BUFF_MAX, "cmd was '%s' %d\n", cmd, cmdsize);
-    //Serial.print(buff);
-
     // TssmmhhWDDMMYYYY aka set time
     if (cmd[0] == 84 && cmdsize == 16) {
         //T355720619112011
