@@ -33,123 +33,189 @@ Adafruit_BMP085 bmp;
 //End
 
 // Another Things
+int lol = 0;
 int lBtn = 4;
 int eBtn = 3;
 int rBtn = 2;
+int statelBtn;
+int lastStatelBtn;
+int stateeBtn;
+int lastStateeBtn;
+int staterBtn;
+int lastStaterBtn;
 // End
 
 //MPU-6050
-
 const int MPU=0x69;
 int AcX,AcY,AcZ,Tmp,GyX,GyY,GyZ;
 
 void setup() {
 
+  //Main Config
+  pinMode(rBtn, INPUT);
+  pinMode(eBtn, INPUT);
+  pinMode(lBtn, INPUT);
+  lastStatelBtn=HIGH;
+  lastStateeBtn=HIGH;
+  lastStaterBtn=HIGH;
+  Serial.begin(9600);
+  attachInterrupt(eBtn, rtc, FALLING);
+  attachInterrupt(rBtn, home2, FALLING);
+  attachInterrupt(lBtn, home3, FALLING);
+  Serial.println("Initializing. . .");
+  //End
+  delay(1000);
   //LCD
-  Serial.begin(38400);
+  Serial.println("Checking LCD!");
   tft.begin();
+  Serial.println("PASS!");
+
   tft.drawRect(0, 0, 128, 128, WHITE);
   tft.setRotation(2);
-  //End
-
-  //RTC
   tft.setForeground(WHITE);
   tft.setBackground(WHITE);
+  tft.setTextScale(2);
+  tft.setCursor(CENTER, CENTER);
+  tft.print("Initializing. . . ");
+  //End
+  delay(1000);
+  //RTC
+  Serial.println("Checking RTC!");
   Wire.begin();
+  Serial.println("PASS!");
   DS3231_init(DS3231_INTCN);
   memset(recv, 0, BUFF_MAX);
   Serial.println("GET time");
   //End
-
+  delay(1000);
   //BMP180
-  if (!bmp.begin()) {
-  Serial.println("Could not find a valid BMP085 sensor, check wiring!");
-  while (1) {}
-  }
+  Serial.println("Checking BMP180!");
+  bmp.begin();
+  Serial.println("PASS!");
   //End
-
+  delay(1000);
   //MPU6050
+  Serial.println("Checking MPU6050!");
   Wire.beginTransmission(MPU);
-Wire.write(0x6B);
-
-//Inicializa o MPU-6050
-Wire.write(0);
-Wire.endTransmission(true);
+  Serial.println("PASS!");
+  Wire.write(0x6B);
+  Wire.write(0);
+  Wire.endTransmission(true);
+  //End
+  delay(1000);
+  Serial.println("OK, Starting!");
+  
+  tft.fillRect(4, 25, 120, 60, BLACK);
+  
 
 }
-
 void loop(void) {
 
+  rtc();
+  
+  staterBtn = digitalRead(rBtn);
+  stateeBtn = digitalRead(eBtn);
+  statelBtn = digitalRead(lBtn);
 
-    char in;
-    char buff[BUFF_MAX];
-    unsigned long now = millis();
-    struct ts t;
+  if(staterBtn==1 && lastStaterBtn==0)
+  {
+      if ( lol != 1){
+       
+       lol = 1;
+     }
 
-    // show time once in a while
-    if ((now - prev > interval) && (Serial.available() <= 0)) {
-        DS3231_get(&t);
+     Serial.println("Botao direito pressionado");
+  }
+  if(stateeBtn==1 && lastStateeBtn==0)
+  {
+      if ( lol != 1){
+       
+       lol = 1;
+     }
 
-        // there is a compile time option in the library to include unixtime support
-#ifdef CONFIG_UNIXTIME
-        snprintf(buff, BUFF_MAX, "%d.%02d.%02d %02d:%02d:%02d %ld", t.year,
-             t.mon, t.mday, t.hour, t.min, t.sec, t.unixtime);
-#else
-        snprintf(buff, BUFF_MAX, "%d.%02d.%02d %02d:%02d:%02d", t.year,
-             t.mon, t.mday, t.hour, t.min, t.sec);
-#endif
+     Serial.println("Botao enter pressionado");
+  }
+  if(statelBtn==1 && lastStatelBtn==0)
+  {
+      if ( lol != 1){
+       
+       lol = 1;
+     }
 
-    // SHOW HOME SCREEN
+     Serial.println("Botao esquerdo pressionado");
+  }
 
-            Serial.println(buff);
-            prev = now;
-            tft.fillRect(24, 10, 80, 80, BLACK);
-            tft.setCursor(55, 25);
-            tft.setTextScale(1);
-            tft.setTextColor(WHITE); 
-            tft.println(bmp.readTemperature());
-            tft.setCursor(25, 40);
-            tft.setTextScale(3);
-            tft.setTextColor(WHITE);         
-            tft.print(t.hour);
-            tft.print(":");
-            tft.setCursor(69, 40);
-            tft.setTextScale(3);
-            tft.setTextColor(WHITE); 
-            tft.print(t.min);
-            tft.setCursor(55, 70);
-            tft.setTextScale(2);
-            tft.setTextColor(WHITE);  
-            tft.print(t.sec);
-            tft.setTextScale(1);
-            tft.setCursor(40, 115);
-            tft.setTextColor(WHITE);  
-            tft.println("Artur Gomes.");
-            home3();
-            home2();
-    }
+lastStaterBtn=staterBtn;
+lastStateeBtn=stateeBtn;
+lastStatelBtn=statelBtn;
 
-    if (Serial.available() > 0) {
-        in = Serial.read();
-
-        if ((in == 10 || in == 13) && (recv_size > 0)) {
-            parse_cmd(recv, recv_size);
-            recv_size = 0;
-            recv[0] = 0;
-        } else if (in < 48 || in > 122) {;       // ignore ~[0-9A-Za-z]
-        } else if (recv_size > BUFF_MAX - 2) {   // drop lines that are too long
-            // drop
-            recv_size = 0;
-            recv[0] = 0;
-        } else if (recv_size < BUFF_MAX - 2) {
-            recv[recv_size] = in;
-            recv[recv_size + 1] = 0;
-            recv_size += 1;
-        }
-
-    }
 }
 
+void rtc(void) {
+  
+
+      char in;
+      char buff[BUFF_MAX];
+      unsigned long now = millis();
+      struct ts t;
+
+      // show time once in a while
+      if ((now - prev > interval) && (Serial.available() <= 0)) {
+          DS3231_get(&t);
+
+          // there is a compile time option in the library to include unixtime support
+  #ifdef CONFIG_UNIXTIME
+          snprintf(buff, BUFF_MAX, "%d.%02d.%02d %02d:%02d:%02d %ld", t.year,
+               t.mon, t.mday, t.hour, t.min, t.sec, t.unixtime);
+  #else
+          snprintf(buff, BUFF_MAX, "%d.%02d.%02d %02d:%02d:%02d", t.year,
+               t.mon, t.mday, t.hour, t.min, t.sec);
+  #endif
+
+      // SHOW HOME SCREEN
+
+              Serial.println(buff);
+              prev = now;
+              tft.fillRect(24, 25, 80, 60, BLACK);
+              tft.setCursor(25, 40);
+              tft.setTextScale(3);
+              tft.setTextColor(WHITE);
+              tft.print(t.hour);
+              tft.print(":");
+              tft.setCursor(69, 40);
+              tft.setTextScale(3);
+              tft.setTextColor(WHITE);
+              tft.print(t.min);
+              tft.setCursor(55, 70);
+              tft.setTextScale(2);
+              tft.setTextColor(WHITE);
+              tft.print(t.sec);
+              tft.setTextScale(1);
+              tft.setCursor(40, 115);
+              tft.setTextColor(WHITE);
+              tft.println("Artur Gomes.");
+      }
+
+      if (Serial.available() > 0) {
+          in = Serial.read();
+
+          if ((in == 10 || in == 13) && (recv_size > 0)) {
+              parse_cmd(recv, recv_size);
+              recv_size = 0;
+              recv[0] = 0;
+          } else if (in < 48 || in > 122) {;       // ignore ~[0-9A-Za-z]
+          } else if (recv_size > BUFF_MAX - 2) {   // drop lines that are too long
+              // drop
+              recv_size = 0;
+              recv[0] = 0;
+          } else if (recv_size < BUFF_MAX - 2) {
+              recv[recv_size] = in;
+              recv[recv_size + 1] = 0;
+              recv_size += 1;
+          }
+
+      }
+}
 void parse_cmd(char *cmd, int cmdsize)
 {
     uint8_t i;
@@ -227,7 +293,7 @@ void parse_cmd(char *cmd, int cmdsize)
 }
 
 void home2(){
-
+while(1){
 Serial.print("Temperature = ");
 Serial.print(bmp.readTemperature());
 Serial.println(" *C");
@@ -245,9 +311,10 @@ Serial.print(bmp.readAltitude(101500));
 Serial.println(" meters");
 Serial.println();
 delay(500);
-
+}
 }
 void home3 (){
+  while(1){
 Wire.beginTransmission(MPU);
 Wire.write(0x3B);  // starting with register 0x3B (ACCEL_XOUT_H)
 Wire.endTransmission(false);
@@ -279,4 +346,5 @@ Serial.print(" | GyZ = "); Serial.println(GyZ);
 
 //Aguarda 300 ms e reinicia o processo
 delay(300);
+  }
 }
